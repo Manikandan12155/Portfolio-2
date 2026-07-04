@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, X, Send, Bot, Loader2, Maximize2, Minimize2, Plus, Search, Image, LayoutGrid, Microscope, Heart, Settings, Trash2, PanelLeftClose, PanelLeftOpen, Star, User, ArrowRight, HelpCircle, MoreHorizontal, Edit2, Share2, Pin, PinOff, Rocket, Check, QrCode, Keyboard, PlayCircle, MessageSquareDashed } from "lucide-react";
+import { MessageSquare, X, Send, Bot, Loader2, Maximize2, Minimize2, Plus, Search, Image, LayoutGrid, Microscope, Heart, Settings, Trash2, PanelLeftClose, PanelLeftOpen, Star, User, ArrowRight, HelpCircle, MoreHorizontal, Edit2, Share2, Pin, PinOff, Rocket, Check, QrCode, Keyboard, PlayCircle, MessageSquareDashed, Menu } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GEMINI_API_KEY } from "@/lib/config";
 
@@ -75,7 +75,18 @@ const Typewriter = ({ text, onComplete }: { text: string; onComplete?: () => voi
         return () => clearInterval(interval);
     }, [text]);
 
-    return <FormattedText text={display} />;
+    return (
+        <span className="relative">
+            <FormattedText text={display} />
+            {display.length < text.length && (
+                <motion.span
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 0.5, repeat: Infinity }}
+                    className="inline-block w-1.5 h-4 bg-[#70ff9b] ml-1 align-middle shadow-[0_0_8px_#70ff9b]"
+                />
+            )}
+        </span>
+    );
 };
 
 const Chatbot = () => {
@@ -230,7 +241,7 @@ const Chatbot = () => {
             setIsTyping(false);
             setActiveView('chat');
             setIsTemporaryChat(true);
-            
+
             // Load existing temporary messages if any
             const storedTempMessages = sessionStorage.getItem("temporary_chat_messages");
             if (storedTempMessages) {
@@ -404,7 +415,7 @@ const Chatbot = () => {
             }));
 
             // Call the local backend (FastAPI)
-            const response = await fetch("http://localhost:8000/chat", {
+            const response = await fetch("https://portfolio-backend-c9uc.onrender.com/chat", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -489,28 +500,44 @@ const Chatbot = () => {
                             initial={{ opacity: 0, scale: 0.8, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.8, y: 20 }}
-                            className={`glass-panel glow-border rounded-lg overflow-hidden flex flex-col shadow-2xl transition-all duration-300 ease-in-out ${isExpanded
-                                ? "fixed inset-0 m-auto z-[100] w-[90vw] md:w-[1000px] h-[85vh]"
-                                : "mb-4 w-80 md:w-96 h-[60vh]"
-                                }`}
-                            style={{ maxHeight: isExpanded ? "90vh" : "500px" }}
+                            className={`nasa-terminal border-2 border-[#00f2ff]/30 rounded-lg overflow-hidden flex flex-col shadow-2xl transition-all duration-300 ease-in-out ${isExpanded
+                                ? "fixed inset-0 m-auto z-[100] w-[95vw] md:w-[1000px] h-[85dvh] md:h-[80vh]"
+                                : "mb-4 w-[calc(100vw-24px)] xs:w-80 md:w-96 h-[60dvh] md:h-[450px]"
+                                } shadow-[0_0_30px_rgba(0,242,255,0.1)]`}
+                            style={{ maxHeight: isExpanded ? "90dvh" : "550px" }}
                         >
+                            <div className="crt-scanline"></div>
                             {/* Header */}
                             {/* Header */}
-                            <div className="bg-primary/10 p-4 border-b border-primary/20 flex justify-between items-center shrink-0">
-                                <div className="flex items-center gap-2">
-                                    <Bot size={18} className="text-primary" />
-                                    <span className="font-display text-sm tracking-wider text-primary">
-                                        SYSTEM ASSISTANT {isTemporaryChat && <span className="text-xs text-muted-foreground ml-2">(Temporary)</span>}
-                                    </span>
+                            <div className="bg-[#001a24] p-4 border-b border-[#00f2ff]/20 flex justify-between items-center shrink-0 relative z-10">
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                                        className="text-[#00f2ff] hover:bg-[#00f2ff]/10 p-1.5 rounded transition-all"
+                                        title="Toggle Sidebar"
+                                    >
+                                        <Menu size={18} />
+                                    </button>
+                                    <div className="flex flex-col">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></div>
+                                            <span className="font-mono text-[10px] font-bold text-[#00f2ff] tracking-[0.2em] uppercase">
+                                                NASA | MISSION CONTROL CENTER
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-4 mt-1">
+                                            <span className="text-[8px] font-mono text-[#00f2ff]/60 uppercase tracking-tighter">LINK: ACTIVE</span>
+                                            <span className="text-[8px] font-mono text-[#00f2ff]/60 uppercase tracking-tighter hidden xs:inline">LATENCY: 42MS</span>
+                                            <span className="text-[8px] font-mono text-[#00f2ff]/60 uppercase tracking-tighter hidden xs:inline">SIG: HIGH</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {/* Temporary Chat Button */}
                                     <button
                                         onClick={handleTemporaryChat}
-                                        className={`text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-white/5 ${
-                                            isTemporaryChat ? 'text-primary bg-primary/10' : ''
-                                        }`}
+                                        className={`text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-white/5 ${isTemporaryChat ? 'text-primary bg-primary/10' : ''
+                                            }`}
                                         title={isTemporaryChat ? "Turn Off Temporary Chat" : "Start Temporary Chat"}
                                     >
                                         <MessageSquareDashed size={18} className={isTemporaryChat ? 'fill-current' : ''} />
@@ -581,175 +608,174 @@ const Chatbot = () => {
                                 </div>
                             </div>
 
-                            {/* Content */}
+                            {/* Content Wrapper */}
                             <div className="flex flex-1 overflow-hidden">
-                                {isExpanded && (
-                                    <div className={`hidden md:flex border-r border-primary/20 bg-secondary/10 backdrop-blur-sm flex-col gap-2 shrink-0 h-full overflow-hidden transition-all duration-300 ${isSidebarOpen ? 'w-64 p-4' : 'w-16 p-2 items-center'}`}>
-                                        <div id="tour-sidebar-top" className={`flex items-center shrink-0 mb-4 ${isSidebarOpen ? 'justify-between px-1' : 'justify-center'}`}>
-                                            {isSidebarOpen ? (
-                                                <>
-                                                    <div className="text-primary">
-                                                        <Bot size={24} />
-                                                    </div>
-                                                    <button
-                                                        onClick={() => setIsSidebarOpen(false)}
-                                                        className="text-muted-foreground hover:text-foreground transition-colors p-1 hover:bg-primary/10 rounded"
-                                                        title="Collapse sidebar"
-                                                    >
-                                                        <PanelLeftClose size={18} />
-                                                    </button>
-                                                </>
-                                            ) : (
+                                {/* Sidebar */}
+                                <div className={`flex border-r border-[#00f2ff]/20 bg-[#001a24]/80 backdrop-blur-sm flex-col gap-2 shrink-0 h-full overflow-hidden transition-all duration-300 relative z-10 ${isSidebarOpen ? 'w-48 md:w-64 p-4' : 'w-12 md:w-16 p-2 items-center'}`}>
+                                    <div id="tour-sidebar-top" className={`flex items-center shrink-0 mb-4 ${isSidebarOpen ? 'justify-between px-1' : 'justify-center'}`}>
+                                        {isSidebarOpen ? (
+                                            <>
+                                                <div className="text-[#00f2ff] drop-shadow-[0_0_8px_rgba(0,242,255,0.4)]">
+                                                    <Bot size={22} />
+                                                </div>
                                                 <button
-                                                    onClick={() => setIsSidebarOpen(true)}
-                                                    className="text-muted-foreground hover:text-foreground transition-colors p-1 hover:bg-primary/10 rounded"
-                                                    title="Expand sidebar"
+                                                    onClick={() => setIsSidebarOpen(false)}
+                                                    className="text-[#00f2ff]/60 hover:text-[#00f2ff] transition-colors p-1 hover:bg-[#00f2ff]/10 rounded font-mono hidden md:block"
+                                                    title="Collapse sidebar"
                                                 >
-                                                    <PanelLeftOpen size={18} />
+                                                    <PanelLeftClose size={18} />
                                                 </button>
-                                            )}
-                                        </div>
-
-                                        <button
-                                            id="tour-new-chat"
-                                            onClick={handleNewChat}
-                                            className={`flex items-center gap-3 rounded-md hover:bg-primary/10 text-sm transition-colors shrink-0 ${isSidebarOpen ? 'px-3 py-2 text-left border border-white/5 mb-2 bg-background/50 text-foreground w-full' : 'p-2 justify-center mb-2'}`}
-                                            title="New Chat"
-                                        >
-                                            <Plus size={16} className="text-primary" />
-                                            {isSidebarOpen && <span>New chat</span>}
-                                        </button>
-
-                                        <button
-                                            id="tour-search"
-                                            onClick={() => { setIsSearchOpen(true); setSearchQuery(""); }}
-                                            className={`flex items-center gap-3 rounded-md hover:bg-primary/10 text-sm transition-colors shrink-0 ${isSidebarOpen ? 'px-3 py-2 text-left border border-white/5 mb-4 bg-transparent text-muted-foreground hover:text-foreground w-full' : 'p-2 justify-center mb-4 text-muted-foreground'}`}
-                                            title="Search chats"
-                                        >
-                                            <Search size={16} />
-                                            {isSidebarOpen && <span>Search chats...</span>}
-                                        </button>
-
-                                        {isSidebarOpen && (
-                                            <div id="tour-recent" className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-1 pr-1 custom-scrollbar w-full">
-                                                <div className="text-xs font-medium text-muted-foreground mb-2 px-2 uppercase tracking-wider sticky top-0 bg-transparent backdrop-blur-sm py-1 z-10">Recent</div>
-                                                {[...sessions].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)).map(session => (
-                                                    <div
-                                                        key={session.id}
-                                                        className={`group relative flex items-center gap-3 px-3 py-2 rounded-md transition-colors w-full cursor-pointer ${currentSessionId === session.id ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted-foreground hover:text-foreground hover:bg-primary/10'
-                                                            }`}
-                                                        onClick={() => handleLoadSession(session.id)}
-                                                    >
-                                                        {session.pinned ? <Pin size={14} className="shrink-0 text-primary rotate-45 fill-primary/20" /> : <MessageSquare size={14} className="shrink-0" />}
-
-                                                        {renamingSessionId === session.id ? (
-                                                            <input
-                                                                ref={renameInputRef}
-                                                                type="text"
-                                                                defaultValue={session.title}
-                                                                className="flex-1 bg-background border border-primary/50 rounded px-1 text-xs focus:outline-none min-w-0"
-                                                                onClick={(e) => e.stopPropagation()}
-                                                                onBlur={(e) => handleRenameSubmit(session.id, e.target.value)}
-                                                                onKeyDown={(e) => {
-                                                                    if (e.key === 'Enter') handleRenameSubmit(session.id, e.currentTarget.value);
-                                                                    if (e.key === 'Escape') setRenamingSessionId(null);
-                                                                }}
-                                                            />
-                                                        ) : (
-                                                            <span className="truncate flex-1 text-left">{session.title}</span>
-                                                        )}
-
-                                                        {/* Three Dots Button */}
-                                                        {!renamingSessionId && (
-                                                            <div className={`transition-opacity flex items-center ${activeMenuSessionId === session.id ? 'opacity-100' : 'opacity-100'}`}>
-                                                                <motion.button
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        setActiveMenuSessionId(activeMenuSessionId === session.id ? null : session.id);
-                                                                    }}
-                                                                    className="relative w-7 h-7 flex items-center justify-center rounded-full focus:outline-none"
-                                                                    whileHover={{ scale: 1.1 }}
-                                                                    whileTap={{ scale: 0.9 }}
-                                                                >
-                                                                    {/* Star Ball */}
-                                                                    <motion.div
-                                                                        className="w-5 h-5 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 shadow-[0_0_10px_cyan] flex items-center justify-center relative z-10"
-                                                                        animate={{ rotate: 360 }}
-                                                                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                                                    >
-                                                                        <Star size={10} className="text-white fill-white" />
-                                                                    </motion.div>
-
-                                                                    {/* Blast/Ripple Effect */}
-                                                                    {activeMenuSessionId === session.id && (
-                                                                        <motion.span
-                                                                            className="absolute inset-0 rounded-full border-2 border-cyan-400 opacity-0"
-                                                                            initial={{ opacity: 1, scale: 0.8 }}
-                                                                            animate={{ opacity: 0, scale: 2 }}
-                                                                            transition={{ duration: 0.6, ease: "easeOut" }}
-                                                                        />
-                                                                    )}
-                                                                </motion.button>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Dropdown Menu */}
-                                                        {activeMenuSessionId === session.id && (
-                                                            <>
-                                                                <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setActiveMenuSessionId(null); }} />
-                                                                <div className="absolute right-2 top-8 z-50 bg-popover border border-white/10 rounded-md shadow-xl py-1 min-w-[140px] flex flex-col animate-in fade-in zoom-in-95 duration-100 origin-top-right">
-                                                                    <button
-                                                                        onClick={(e) => handleTogglePin(e, session.id)}
-                                                                        className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-secondary/50 text-left w-full text-foreground/80 hover:text-foreground transition-colors"
-                                                                    >
-                                                                        {session.pinned ? <PinOff size={12} /> : <Pin size={12} />}
-                                                                        {session.pinned ? "Unpin Chat" : "Pin Chat"}
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={(e) => handleStartRename(e, session.id)}
-                                                                        className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-secondary/50 text-left w-full text-foreground/80 hover:text-foreground transition-colors"
-                                                                    >
-                                                                        <Edit2 size={12} />
-                                                                        Rename
-                                                                    </button>
-                                                                    {/* Share (Placeholder) */}
-                                                                    <button
-                                                                        onClick={(e) => { e.stopPropagation(); alert("Share feature coming soon!"); setActiveMenuSessionId(null); }}
-                                                                        className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-secondary/50 text-left w-full text-foreground/80 hover:text-foreground transition-colors"
-                                                                    >
-                                                                        <Share2 size={12} />
-                                                                        Share
-                                                                    </button>
-                                                                    <div className="h-px bg-white/5 my-1" />
-                                                                    <button
-                                                                        onClick={(e) => handleDeleteSession(e, session.id)}
-                                                                        className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-red-500/10 text-left w-full text-red-400 hover:text-red-300 transition-colors"
-                                                                    >
-                                                                        <Trash2 size={12} />
-                                                                        Delete
-                                                                    </button>
-                                                                </div>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-
-                                        <div className={`pt-2 mt-auto border-t border-white/5 shrink-0 ${isSidebarOpen ? 'w-full' : 'w-full flex justify-center'}`}>
+                                            </>
+                                        ) : (
                                             <button
-                                                id="tour-settings"
-                                                onClick={() => setActiveView('settings')}
-                                                className={`flex items-center gap-3 rounded-md hover:bg-primary/10 text-sm transition-colors ${isSidebarOpen ? 'px-3 py-2 text-left w-full' : 'p-2 justify-center'} ${activeView === 'settings' ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}
-                                                title="Settings"
+                                                onClick={() => setIsSidebarOpen(true)}
+                                                className="text-[#00f2ff]/60 hover:text-[#00f2ff] transition-colors p-1 hover:bg-[#00f2ff]/10 rounded font-mono"
+                                                title="Expand sidebar"
                                             >
-                                                <Settings size={16} />
-                                                {isSidebarOpen && <span>Settings</span>}
+                                                <PanelLeftOpen size={18} />
                                             </button>
-                                        </div>
+                                        )}
                                     </div>
-                                )}
-                                <div className="flex-1 flex flex-col h-full min-w-0 bg-background/40">
+
+                                    <button
+                                        id="tour-new-chat"
+                                        onClick={handleNewChat}
+                                        className={`flex items-center gap-3 rounded-md hover:bg-[#00f2ff]/10 text-xs font-mono transition-colors shrink-0 ${isSidebarOpen ? 'px-3 py-2 text-left border border-[#00f2ff]/20 mb-2 bg-[#00f2ff]/5 text-[#00f2ff] w-full uppercase tracking-wider' : 'p-2 justify-center mb-2'}`}
+                                        title="New Chat"
+                                    >
+                                        <Plus size={16} className="text-[#00f2ff]" />
+                                        {isSidebarOpen && <span>New Session</span>}
+                                    </button>
+
+                                    <button
+                                        id="tour-search"
+                                        onClick={() => { setIsSearchOpen(true); setSearchQuery(""); }}
+                                        className={`flex items-center gap-3 rounded-md hover:bg-[#00f2ff]/10 text-xs font-mono transition-colors shrink-0 ${isSidebarOpen ? 'px-3 py-2 text-left border border-[#00f2ff]/10 mb-4 bg-transparent text-[#00f2ff]/60 hover:text-[#00f2ff] w-full uppercase tracking-wider' : 'p-2 justify-center mb-4 text-[#00f2ff]/60'}`}
+                                        title="Search logs"
+                                    >
+                                        <Search size={16} />
+                                        {isSidebarOpen && <span>Search Logs...</span>}
+                                    </button>
+
+                                    {isSidebarOpen && (
+                                        <div id="tour-recent" className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-1 pr-1 custom-scrollbar w-full">
+                                            <div className="text-[10px] font-mono font-medium text-[#00f2ff]/40 mb-2 px-2 uppercase tracking-[0.2em] sticky top-0 bg-[#001a24]/80 py-1 z-10 border-b border-[#00f2ff]/10">Recent Logs</div>
+                                            {[...sessions].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)).map(session => (
+                                                <div
+                                                    key={session.id}
+                                                    className={`group relative flex items-center gap-3 px-3 py-2 rounded transition-colors w-full cursor-pointer font-mono text-[11px] ${currentSessionId === session.id ? 'bg-[#00f2ff]/20 text-[#00f2ff] border border-[#00f2ff]/30 shadow-[0_0_10px_rgba(0,242,255,0.1)]' : 'text-[#00f2ff]/60 hover:text-[#00f2ff] hover:bg-[#00f2ff]/10'
+                                                        }`}
+                                                    onClick={() => handleLoadSession(session.id)}
+                                                >
+                                                    {session.pinned ? <Pin size={12} className="shrink-0 text-[#00f2ff] rotate-45 fill-[#00f2ff]/20" /> : <MessageSquare size={12} className="shrink-0" />}
+
+                                                    {renamingSessionId === session.id ? (
+                                                        <input
+                                                            ref={renameInputRef}
+                                                            type="text"
+                                                            defaultValue={session.title}
+                                                            className="flex-1 bg-background border border-primary/50 rounded px-1 text-xs focus:outline-none min-w-0"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            onBlur={(e) => handleRenameSubmit(session.id, e.target.value)}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === 'Enter') handleRenameSubmit(session.id, e.currentTarget.value);
+                                                                if (e.key === 'Escape') setRenamingSessionId(null);
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <span className="truncate flex-1 text-left">{session.title}</span>
+                                                    )}
+
+                                                    {/* Three Dots Button */}
+                                                    {!renamingSessionId && (
+                                                        <div className={`transition-opacity flex items-center ${activeMenuSessionId === session.id ? 'opacity-100' : 'opacity-100'}`}>
+                                                            <motion.button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setActiveMenuSessionId(activeMenuSessionId === session.id ? null : session.id);
+                                                                }}
+                                                                className="relative w-7 h-7 flex items-center justify-center rounded-full focus:outline-none"
+                                                                whileHover={{ scale: 1.1 }}
+                                                                whileTap={{ scale: 0.9 }}
+                                                            >
+                                                                {/* Star Ball */}
+                                                                <motion.div
+                                                                    className="w-5 h-5 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 shadow-[0_0_10px_cyan] flex items-center justify-center relative z-10"
+                                                                    animate={{ rotate: 360 }}
+                                                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                                                >
+                                                                    <Star size={10} className="text-white fill-white" />
+                                                                </motion.div>
+
+                                                                {/* Blast/Ripple Effect */}
+                                                                {activeMenuSessionId === session.id && (
+                                                                    <motion.span
+                                                                        className="absolute inset-0 rounded-full border-2 border-cyan-400 opacity-0"
+                                                                        initial={{ opacity: 1, scale: 0.8 }}
+                                                                        animate={{ opacity: 0, scale: 2 }}
+                                                                        transition={{ duration: 0.6, ease: "easeOut" }}
+                                                                    />
+                                                                )}
+                                                            </motion.button>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Dropdown Menu */}
+                                                    {activeMenuSessionId === session.id && (
+                                                        <>
+                                                            <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setActiveMenuSessionId(null); }} />
+                                                            <div className="absolute right-2 top-8 z-50 bg-popover border border-white/10 rounded-md shadow-xl py-1 min-w-[140px] flex flex-col animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                                                                <button
+                                                                    onClick={(e) => handleTogglePin(e, session.id)}
+                                                                    className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-secondary/50 text-left w-full text-foreground/80 hover:text-foreground transition-colors"
+                                                                >
+                                                                    {session.pinned ? <PinOff size={12} /> : <Pin size={12} />}
+                                                                    {session.pinned ? "Unpin Chat" : "Pin Chat"}
+                                                                </button>
+                                                                <button
+                                                                    onClick={(e) => handleStartRename(e, session.id)}
+                                                                    className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-secondary/50 text-left w-full text-foreground/80 hover:text-foreground transition-colors"
+                                                                >
+                                                                    <Edit2 size={12} />
+                                                                    Rename
+                                                                </button>
+                                                                {/* Share (Placeholder) */}
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); alert("Share feature coming soon!"); setActiveMenuSessionId(null); }}
+                                                                    className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-secondary/50 text-left w-full text-foreground/80 hover:text-foreground transition-colors"
+                                                                >
+                                                                    <Share2 size={12} />
+                                                                    Share
+                                                                </button>
+                                                                <div className="h-px bg-white/5 my-1" />
+                                                                <button
+                                                                    onClick={(e) => handleDeleteSession(e, session.id)}
+                                                                    className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-red-500/10 text-left w-full text-red-400 hover:text-red-300 transition-colors"
+                                                                >
+                                                                    <Trash2 size={12} />
+                                                                    Delete
+                                                                </button>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    <div className={`pt-2 mt-auto border-t border-[#00f2ff]/10 shrink-0 ${isSidebarOpen ? 'w-full' : 'w-full flex justify-center'}`}>
+                                        <button
+                                            id="tour-settings"
+                                            onClick={() => setActiveView('settings')}
+                                            className={`flex items-center gap-3 rounded hover:bg-[#00f2ff]/10 text-xs font-mono uppercase tracking-widest transition-colors ${isSidebarOpen ? 'px-3 py-2 text-left w-full' : 'p-2 justify-center'} ${activeView === 'settings' ? 'text-[#00f2ff] bg-[#00f2ff]/10' : 'text-[#00f2ff]/60 hover:text-[#00f2ff]'}`}
+                                            title="Settings"
+                                        >
+                                            <Settings size={16} />
+                                            {isSidebarOpen && <span>Settings</span>}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="flex-1 flex flex-col h-full min-w-0 bg-transparent">
                                     {activeView === 'chat' ? (
                                         !userName ? (
                                             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in-95 duration-500">
@@ -780,16 +806,16 @@ const Chatbot = () => {
                                             <>
                                                 {/* Messages Area */}
                                                 {messages.length === 0 ? (
-                                                    <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in-95 duration-500">
-                                                        <div className="bg-primary/10 p-6 rounded-full mb-6 relative group">
-                                                            <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                            <Bot size={48} className="text-primary relative z-10" />
+                                                    <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in-95 duration-500 relative z-10">
+                                                        <div className="bg-[#00f2ff]/10 p-6 rounded-full mb-6 relative group border border-[#00f2ff]/30 shadow-[0_0_20px_rgba(0,242,255,0.2)]">
+                                                            <div className="absolute inset-0 bg-[#00f2ff]/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                            <Bot size={48} className="text-[#00f2ff] relative z-10" />
                                                         </div>
-                                                        <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-3">
-                                                            How can I help you, {userName}?
+                                                        <h2 className="text-2xl md:text-3xl font-mono font-bold text-[#00f2ff] mb-3 uppercase tracking-tighter">
+                                                            Systems Online, {userName}
                                                         </h2>
-                                                        <p className="text-muted-foreground max-w-xs mx-auto text-sm leading-relaxed">
-                                                            Ask me about Manikandan's projects, skills, or experience.
+                                                        <p className="text-[#00f2ff]/60 max-w-xs mx-auto text-sm leading-relaxed font-mono uppercase">
+                                                            Awaiting telemetry requests regarding Manikandan's mission logs.
                                                         </p>
                                                     </div>
                                                 ) : (
@@ -797,12 +823,21 @@ const Chatbot = () => {
                                                         {messages.map((msg) => (
                                                             <div
                                                                 key={msg.id}
-                                                                className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                                                                className={`flex flex-col mb-4 ${msg.sender === "user" ? "items-end text-right" : "items-start"}`}
                                                             >
+                                                                <div className={`flex items-center gap-2 mb-1 px-1 ${msg.sender === "user" ? "flex-row-reverse" : ""}`}>
+                                                                    <span className="text-[10px] font-mono text-[#00f2ff]/40">
+                                                                        [{new Date(msg.id).toLocaleTimeString([], { hour12: false })}]
+                                                                    </span>
+                                                                    <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${msg.sender === "user" ? "text-[#00f2ff]" : "text-[#70ff9b]"}`}>
+                                                                        {msg.sender === "user" ? (userName || "PILOT") : "CAPCOM"}
+                                                                    </span>
+                                                                    <span className="text-[10px] font-mono text-[#00f2ff]/60">{msg.sender === "user" ? "<<" : ">>"}</span>
+                                                                </div>
                                                                 <div
-                                                                    className={`max-w-[80%] px-4 py-2.5 rounded-lg text-sm ${msg.sender === "user"
-                                                                        ? "bg-primary text-primary-foreground rounded-tr-none"
-                                                                        : "bg-secondary text-secondary-foreground rounded-tl-none border border-primary/10"
+                                                                    className={`max-w-[95%] px-0 py-0 bg-transparent text-sm font-mono leading-relaxed ${msg.sender === "user"
+                                                                        ? "text-[#00f2ff]"
+                                                                        : "text-[#70ff9b]"
                                                                         }`}
                                                                 >
                                                                     {msg.sender === "bot" ? (
@@ -826,7 +861,7 @@ const Chatbot = () => {
                                                                 <div className="bg-transparent border-none flex items-center justify-center relative w-16 h-8">
                                                                     <div className="flex items-center justify-center w-full h-full relative">
                                                                         <motion.div
-                                                                            className="relative flex items-center drop-shadow-[0_0_15px_rgba(249,115,22,0.8)] z-50"
+                                                                            className="relative flex items-center drop-shadow-[0_0_15px_rgba(0,242,255,0.8)] z-50"
                                                                             variants={{
                                                                                 hover: {
                                                                                     x: 0,
@@ -845,11 +880,11 @@ const Chatbot = () => {
                                                                             animate={isLaunching ? "launch" : "hover"}
                                                                         >
                                                                             {/* Rocket Body - Pointing Right */}
-                                                                            <Rocket size={20} className="text-white fill-white/10 rotate-45 z-10" />
+                                                                            <Rocket size={20} className="text-[#00f2ff] fill-[#00f2ff]/10 rotate-45 z-10" />
 
                                                                             {/* Main Engine Blast - Behind (Left) */}
                                                                             <motion.div
-                                                                                className="absolute right-[16px] top-1/2 -translate-y-1/2 w-8 h-3 bg-gradient-to-l from-orange-500 via-yellow-400 to-transparent rounded-l-full blur-[2px]"
+                                                                                className="absolute right-[16px] top-1/2 -translate-y-1/2 w-8 h-3 bg-gradient-to-l from-[#00f2ff] via-[#70ff9b] to-transparent rounded-l-full blur-[2px]"
                                                                                 variants={{
                                                                                     hover: {
                                                                                         scaleX: [1, 1.5, 0.8, 1.3],
@@ -884,42 +919,43 @@ const Chatbot = () => {
                                                 )}
 
                                                 {/* Input */}
-                                                <form onSubmit={handleSend} className="p-3 border-t border-primary/20 bg-background/50 backdrop-blur-sm shrink-0">
-                                                    <div className="flex gap-2">
+                                                <form onSubmit={handleSend} className="p-3 border-t border-[#00f2ff]/20 bg-[#001a24]/80 backdrop-blur-md shrink-0 relative z-10">
+                                                    <div className="flex gap-2 items-center">
+                                                        <span className="text-[#00f2ff] font-bold font-mono text-sm ml-1">$</span>
                                                         <input
                                                             type="text"
                                                             value={input}
                                                             onChange={(e) => setInput(e.target.value)}
-                                                            placeholder="Type a command..."
-                                                            className="flex-1 bg-secondary/50 border border-primary/10 rounded px-3 py-2 text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                                                            placeholder="ENTER COMMAND..."
+                                                            className="flex-1 bg-transparent border-none text-[#00f2ff] font-mono text-sm placeholder:text-[#00f2ff]/30 focus:outline-none py-2"
                                                         />
                                                         <button
                                                             type="submit"
-                                                            className="p-2 bg-primary/20 hover:bg-primary/40 text-primary rounded transition-colors"
+                                                            className="p-2 text-[#00f2ff] hover:bg-[#00f2ff]/10 rounded transition-colors"
                                                             disabled={!input.trim() || isTyping}
                                                         >
-                                                            {isTyping ? <Star size={16} className="animate-spin text-primary fill-current" /> : <Send size={16} />}
+                                                            {isTyping ? <Star size={16} className="animate-spin text-[#00f2ff]" /> : <Send size={16} />}
                                                         </button>
                                                     </div>
                                                 </form>
                                             </>
                                         )) : (
                                         /* Settings View */
-                                        <div className="flex-1 p-6 flex flex-col gap-6 overflow-y-auto">
-                                            <h2 className="text-xl font-display font-bold text-primary border-b border-primary/20 pb-4">Settings</h2>
+                                        <div className="flex-1 p-6 flex flex-col gap-6 overflow-y-auto relative z-10 font-mono">
+                                            <h2 className="text-xl font-bold text-[#00f2ff] border-b border-[#00f2ff]/20 pb-4 uppercase tracking-[0.2em]">User Profile / Configuration</h2>
 
                                             <div className="space-y-4">
                                                 {/* Profile Settings */}
-                                                <div className="p-4 rounded-lg bg-secondary/10 border border-white/5 space-y-4">
-                                                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Profile</h3>
+                                                <div className="p-4 rounded bg-[#001822]/60 border border-[#00f2ff]/20 space-y-4 shadow-inner">
+                                                    <h3 className="text-[10px] font-bold text-[#00f2ff]/40 uppercase tracking-[0.2em]">Pilot Credentials</h3>
                                                     <div className="flex items-center justify-between">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="p-2 bg-primary/20 rounded-full text-primary">
+                                                            <div className="p-2 bg-[#00f2ff]/10 rounded border border-[#00f2ff]/20 text-[#00f2ff]">
                                                                 <User size={20} />
                                                             </div>
                                                             {isEditingName ? (
                                                                 <input
-                                                                    className="bg-transparent border-b border-primary/50 text-foreground focus:outline-none px-1 py-0.5 min-w-[150px]"
+                                                                    className="bg-transparent border-b border-[#00f2ff]/50 text-[#00f2ff] focus:outline-none px-1 py-0.5 min-w-[150px] font-mono"
                                                                     value={newName}
                                                                     onChange={(e) => setNewName(e.target.value)}
                                                                     autoFocus
@@ -930,8 +966,8 @@ const Chatbot = () => {
                                                                 />
                                                             ) : (
                                                                 <div className="flex flex-col">
-                                                                    <span className="font-medium text-foreground">{userName || "Guest"}</span>
-                                                                    <span className="text-xs text-muted-foreground">Display Name</span>
+                                                                    <span className="font-bold text-[#00f2ff] uppercase tracking-wider">{userName || "UNASSIGNED"}</span>
+                                                                    <span className="text-[10px] text-[#00f2ff]/40 uppercase">Designation</span>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -940,15 +976,15 @@ const Chatbot = () => {
                                                             <div className="flex gap-2">
                                                                 <button
                                                                     onClick={handleUpdateName}
-                                                                    className="p-1.5 bg-primary/20 hover:bg-green-500/20 text-primary hover:text-green-400 rounded transition-colors"
-                                                                    title="Save Name"
+                                                                    className="p-1.5 bg-[#70ff9b]/10 hover:bg-[#70ff9b]/20 text-[#70ff9b] rounded border border-[#70ff9b]/30 transition-colors"
+                                                                    title="Update Designation"
                                                                 >
                                                                     <Check size={16} />
                                                                 </button>
                                                                 <button
                                                                     onClick={() => setIsEditingName(false)}
-                                                                    className="p-1.5 hover:bg-red-500/20 text-muted-foreground hover:text-red-400 rounded transition-colors"
-                                                                    title="Cancel"
+                                                                    className="p-1.5 hover:bg-red-500/20 text-[#00f2ff]/60 hover:text-red-400 rounded transition-colors"
+                                                                    title="Abort"
                                                                 >
                                                                     <X size={16} />
                                                                 </button>
@@ -959,8 +995,8 @@ const Chatbot = () => {
                                                                     setNewName(userName);
                                                                     setIsEditingName(true);
                                                                 }}
-                                                                className="p-2 hover:bg-secondary/50 rounded-full text-muted-foreground hover:text-foreground transition-colors"
-                                                                title="Edit Name"
+                                                                className="p-2 hover:bg-[#00f2ff]/10 rounded border border-transparent hover:border-[#00f2ff]/20 text-[#00f2ff]/60 hover:text-[#00f2ff] transition-colors"
+                                                                title="Edit Credentials"
                                                             >
                                                                 <Edit2 size={16} />
                                                             </button>
@@ -968,17 +1004,17 @@ const Chatbot = () => {
                                                     </div>
                                                 </div>
 
-                                                <div className="p-4 rounded-lg bg-secondary/10 border border-white/5 space-y-4">
-                                                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Data & Storage</h3>
+                                                <div className="p-4 rounded bg-[#001822]/60 border border-[#00f2ff]/20 space-y-4">
+                                                    <h3 className="text-[10px] font-bold text-[#00f2ff]/40 uppercase tracking-[0.2em]">Data & Storage</h3>
                                                     <button
                                                         id="tour-clear-history"
                                                         onClick={handleClearAllHistory}
-                                                        className="flex items-center gap-3 w-full px-4 py-3 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 transition-all text-sm font-medium"
+                                                        className="flex items-center gap-3 w-full px-4 py-3 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 transition-all text-xs font-bold uppercase tracking-widest"
                                                     >
                                                         <Trash2 size={18} />
-                                                        <span>Clear All Chat History</span>
+                                                        <span>Purge All Mission Logs</span>
                                                     </button>
-                                                    <p className="text-xs text-muted-foreground">This will permanently delete all your conversation history from this device.</p>
+                                                    <p className="text-[10px] text-[#00f2ff]/40 uppercase tracking-tighter">Warning: This action will permanently erase all local telemetry data.</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -1199,11 +1235,14 @@ const Chatbot = () => {
                     id="chatbot-toggle-btn"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsOpen(!isOpen)}
+                    onClick={() => {
+                        if (!isOpen) handleNewChat();
+                        setIsOpen(!isOpen);
+                    }}
                     className="relative group focus:outline-none"
                 >
                     {/* Pulsing Glow Background */}
-                    <div className="absolute inset-0 bg-primary/60 blur-[20px] rounded-full animate-pulse-glow" />
+                    <div className="absolute inset-0 bg-[#00f2ff]/30 blur-[20px] rounded-full animate-pulse-glow" />
 
                     {/* Rotating Star Container */}
                     <motion.div
