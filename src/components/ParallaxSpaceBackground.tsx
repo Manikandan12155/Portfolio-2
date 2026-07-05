@@ -5,105 +5,90 @@ const ParallaxSpaceBackground = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll();
 
-    // Sun Movement: Moving slowly down (or up relative to scroll) to simulate distance
-    const sunY = useTransform(scrollYProgress, [0, 1], ["5%", "25%"]);
-    const sunX = useTransform(scrollYProgress, [0, 1], ["5%", "2%"]);
+    // Background Nebula Parallax
+    const nebulaY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+    
+    // Planet Movement 
+    const planetY = useTransform(scrollYProgress, [0, 1], ["5%", "35%"]);
+    const planetRotate = useTransform(scrollYProgress, [0, 1], [0, 15]);
 
-    // Moon Movement: Rising slightly 
-    const moonY = useTransform(scrollYProgress, [0, 1], ["80%", "50%"]);
-    const moonX = useTransform(scrollYProgress, [0, 1], ["-10%", "-5%"]);
-    const moonScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1, 1.2]);
+    // Star Movement
+    const starY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+    
+    // Asteroid Movement
+    const asteroidY = useTransform(scrollYProgress, [0, 1], ["10%", "-60%"]);
 
     return (
         <div
             ref={containerRef}
-            className="fixed inset-0 pointer-events-none z-[1] overflow-hidden bg-transparent"
+            className="fixed inset-0 pointer-events-none z-[1] overflow-hidden bg-[#020204]"
         >
-            {/* Deep Space Atmosphere Tint */}
-            <div className="absolute inset-0 bg-[#020408]/60" />
-            {/* CINEMATIC REAL SUN - Zero Sharp Edges */}
-            <motion.div
-                className="absolute w-[450px] h-[450px] md:w-[700px] md:h-[700px] flex items-center justify-center pointer-events-none"
-                style={{
-                    top: "-15%",
-                    left: "-15%",
-                    y: sunY,
-                    x: sunX,
-                }}
+            {/* 1. REAL HUBBLE SPACE TELESCOPE NEBULA */}
+            <motion.div 
+                className="absolute inset-[-15%] w-[130%] h-[130%] opacity-60 mix-blend-screen"
+                style={{ y: nebulaY }}
             >
-                {/* 1. Global Heat Aura (Vast soft glow - even softer) */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,100,0,0.15)_0%,transparent_80%)] blur-[120px]" />
-
-                {/* 2. Soft Corona (Minimal and very blurred to avoid 'ring' look) */}
-                <motion.div
-                    animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.4, 0.2] }}
-                    transition={{ repeat: Infinity, duration: 25, ease: "easeInOut" }}
-                    className="absolute w-[90%] h-[90%] bg-[radial-gradient(circle,rgba(255,150,0,0.1)_0%,transparent_70%)] blur-[80px]"
+                <img 
+                    src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2000" 
+                    alt="Space Nebula" 
+                    className="w-full h-full object-cover"
+                    style={{ filter: "saturate(1.2) contrast(1.1)" }}
                 />
-
-                {/* 3. The Core Body (The actual star - Small for perspective) */}
-                <div className="relative w-16 h-16 md:w-32 md:h-32 rounded-full overflow-hidden">
-                    {/* Base Solar Fire */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,#fff9e6_0%,#ffd700_30%,#ff8c00_60%,#e65100_100%)]" />
-
-                    {/* Moving Plasma Texture */}
-                    <motion.img
-                        animate={{
-                            x: ["-5%", "5%", "-5%"],
-                            y: ["-5%", "5%", "-5%"],
-                            scale: [1.2, 1.4, 1.2]
-                        }}
-                        transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
-                        src="https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=800&q=80"
-                        alt=""
-                        className="w-[110%] h-[110%] object-cover mix-blend-overlay opacity-80 brightness-125 contrast-150"
-                    />
-
-                    {/* Intense Inner Core Bloom */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_35%,rgba(255,255,255,0.3)_0%,transparent_50%)]" />
-                    <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.4)]" />
-                </div>
-
-                {/* 4. Realistic Lens Flares */}
-                <div className="absolute w-[180%] h-[1px] bg-white/5 blur-[2px] rotate-[35deg]" />
-                <div className="absolute w-[140%] h-[1px] bg-orange-400/10 blur-[4px] rotate-[-25deg]" />
             </motion.div>
 
-            {/* CINEMATIC REAL MOON - Cleaned up */}
-            <motion.div
-                className="absolute w-24 h-24 md:w-56 md:h-56 rounded-full"
-                style={{
-                    top: "15%",
-                    right: "5%",
-                    left: "auto",
-                    y: moonY,
-                    x: moonX,
-                    scale: moonScale,
-                }}
+            {/* 2. REALISTIC SUPER-BRIGHT STAR (Light Source) */}
+            <motion.div 
+                className="absolute top-[5%] left-[5%] md:top-[10%] md:left-[10%] w-[300px] h-[300px] flex justify-center items-center z-10"
+                style={{ y: starY }}
             >
-                {/* Moon Body */}
-                <div className="relative w-full h-full rounded-full overflow-hidden bg-black">
-                    {/* Realistic Lunar Surface Mapping */}
-                    <motion.img
-                        animate={{
-                            rotate: [0, -5, 0],
-                        }}
-                        transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
-                        src="https://images.unsplash.com/photo-1532693322450-2cb5c511067d?w=800&q=80"
-                        alt="Moon Surface"
-                        className="w-full h-full object-cover scale-[1.8] brightness-110 contrast-125 saturate-0"
-                    />
-
-                    {/* Phase Shadow (Crescent effect) */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,transparent_30%,rgba(0,0,0,0.8)_80%,#000_100%)] opacity-95" />
-                </div>
-
-                {/* Rim Lighting (Subtle) */}
-                <div className="absolute inset-0 rounded-full shadow-[inset_10px_10px_20px_rgba(255,255,255,0.05),inset_-1px_-1px_5px_rgba(0,0,0,0.5)]" />
+                {/* Core */}
+                <div className="absolute w-6 h-6 md:w-10 md:h-10 bg-white rounded-full shadow-[0_0_150px_60px_rgba(255,255,255,1),0_0_300px_150px_rgba(100,200,255,0.7)]" />
+                
+                {/* Optical Lens Flares */}
+                <div className="absolute w-[300%] h-[2px] bg-white/60 rotate-[15deg] blur-[1px] shadow-[0_0_30px_10px_rgba(100,200,255,0.6)]" />
+                <div className="absolute w-[200%] h-[1px] bg-cyan-200/40 rotate-[75deg] blur-[1px]" />
+                <div className="absolute w-[400%] h-[100%] bg-[radial-gradient(ellipse_at_center,rgba(100,200,255,0.15)_0%,transparent_60%)] mix-blend-screen" />
             </motion.div>
 
-            {/* Deep Space Atmosphere */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,150,0,0.05)_0%,transparent_50%)]" />
+            {/* 3. CINEMATIC LIGHT LEAK OVERLAY */}
+            <div className="absolute top-0 left-0 w-full h-[60vh] bg-gradient-to-br from-cyan-300/10 via-transparent to-transparent pointer-events-none mix-blend-screen z-10" />
+
+            {/* 4. PHOTOREALISTIC PLANET */}
+            <motion.div 
+                className="absolute -right-[20%] md:right-[5%] top-[15%] md:top-[20%] w-[400px] h-[400px] md:w-[700px] md:h-[700px] rounded-full z-20"
+                style={{ y: planetY, rotate: planetRotate }}
+            >
+                {/* Planet Texture Container */}
+                <div className="w-full h-full rounded-full overflow-hidden relative shadow-[0_0_120px_rgba(50,150,255,0.15)]">
+                    <img 
+                        src="https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?q=80&w=1000" 
+                        alt="Realistic Planet" 
+                        className="absolute inset-0 w-[130%] h-[130%] object-cover -left-[15%] -top-[15%]"
+                        style={{ filter: "contrast(1.15) saturate(1.1)" }}
+                    />
+                    
+                    {/* Realistic 3D Shadow (Day/Night Terminator) */}
+                    {/* Light is coming from Top-Left, so shadow is extremely dark on Bottom-Right */}
+                    <div 
+                        className="absolute inset-0 pointer-events-none" 
+                        style={{
+                            background: "radial-gradient(circle at 20% 20%, transparent 20%, rgba(0,0,0,0.6) 45%, rgba(0,0,0,0.95) 65%, #000 100%)"
+                        }}
+                    />
+                    
+                    {/* Atmosphere Rim Light (Reflecting the star) */}
+                    <div className="absolute inset-0 rounded-full shadow-[inset_15px_15px_40px_rgba(200,240,255,0.25),inset_-15px_-15px_30px_rgba(0,0,0,1)] pointer-events-none" />
+                </div>
+            </motion.div>
+
+            {/* 5. FLOATING ASTEROID (Adds depth) */}
+            <motion.div 
+                className="absolute top-[80%] left-[20%] w-12 h-16 bg-black rounded-[40%_60%_70%_30%] z-30"
+                style={{ y: asteroidY, rotate: 45 }}
+            >
+                {/* Asteroid Shadow & Highlight matching the star's light source */}
+                <div className="w-full h-full rounded-[40%_60%_70%_30%] shadow-[inset_3px_3px_10px_rgba(200,240,255,0.4),inset_-5px_-5px_15px_rgba(0,0,0,0.9)]" />
+            </motion.div>
         </div>
     );
 };

@@ -54,6 +54,10 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   * {
     @apply border-border;
   }
@@ -91,7 +95,7 @@
         hsl(220 30% 8% / 0.8),
         hsl(220 30% 5% / 0.9));
     border: 1px solid hsl(185 60% 25% / 0.3);
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(8px);
   }
 
   .glass-panel-hover:hover {
