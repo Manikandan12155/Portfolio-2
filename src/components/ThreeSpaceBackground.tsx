@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Stars, PointMaterial, Points, Sphere } from '@react-three/drei';
 import * as THREE from 'three';
@@ -8,8 +8,25 @@ import * as THREE from 'three';
 const ParticleSwarm = () => {
   const ref = useRef<THREE.Points>(null);
   
+  const starTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const context = canvas.getContext('2d');
+    if (context) {
+      const gradient = context.createRadialGradient(16, 16, 0, 16, 16, 16);
+      gradient.addColorStop(0, 'rgba(255,255,255,1)');
+      gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+      gradient.addColorStop(0.5, 'rgba(255,255,255,0.2)');
+      gradient.addColorStop(1, 'rgba(0,0,0,0)');
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, 32, 32);
+    }
+    return new THREE.CanvasTexture(canvas);
+  }, []);
+
   const [positions, colors] = useMemo(() => {
-    const count = 4000;
+    const count = 1500;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     const color = new THREE.Color();
@@ -45,10 +62,12 @@ const ParticleSwarm = () => {
       <PointMaterial 
         transparent 
         vertexColors 
-        size={0.12} 
+        size={0.4} 
         sizeAttenuation={true} 
         depthWrite={false}
         blending={THREE.AdditiveBlending}
+        map={starTexture}
+        alphaMap={starTexture}
       />
     </Points>
   );
@@ -93,7 +112,7 @@ const Planet = () => {
       {/* Planetary Rings */}
       <group ref={ringRef} rotation={[Math.PI / 2.2, 0.2, 0]}>
         <mesh>
-          <torusGeometry args={[9, 0.6, 2, 100]} />
+          <torusGeometry args={[9, 0.6, 2, 64]} />
           <meshBasicMaterial 
             color="#8b5cf6" 
             transparent 
@@ -103,7 +122,7 @@ const Planet = () => {
           />
         </mesh>
         <mesh>
-          <torusGeometry args={[11, 0.3, 2, 100]} />
+          <torusGeometry args={[11, 0.3, 2, 64]} />
           <meshBasicMaterial 
             color="#38bdf8" 
             transparent 
@@ -119,12 +138,20 @@ const Planet = () => {
 
 // Scroll and Mouse based camera movement
 const CameraRig = () => {
+  const scrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      scrollY.current = window.scrollY;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   useFrame((state) => {
-    // Parallax effect based on scroll
-    const scrollY = window.scrollY;
-    
+    // Parallax effect based on scroll using ref to avoid layout thrashing
     // Smooth camera movement
-    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, -scrollY * 0.005, 0.1);
+    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, -scrollY.current * 0.005, 0.1);
     
     // Mouse parallax
     state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, (state.pointer.x * 2), 0.05);
@@ -149,7 +176,7 @@ const ThreeSpaceBackground = () => {
         <directionalLight position={[-10, 10, 10]} intensity={2} color="#38bdf8" />
         
         {/* Deep background stars */}
-        <Stars radius={100} depth={50} count={7000} factor={4} saturation={1} fade speed={1.5} />
+        <Stars radius={100} depth={50} count={2000} factor={4} saturation={1} fade speed={1.5} />
         
         <ParticleSwarm />
         <Planet />

@@ -673,7 +673,7 @@ const Chatbot = () => { // NOSONAR - Fix requires business logic changes and may
                                     </button>
 
                                     {isSidebarOpen && (
-                                        <div id="tour-recent" className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-1 pr-1 custom-scrollbar w-full">
+                                        <div id="tour-recent" className="flex-1 overflow-y-auto scroll-smooth min-h-0 flex flex-col gap-1 pr-1 custom-scrollbar w-full" style={{ WebkitOverflowScrolling: 'touch' }}>
                                             <div className="text-[10px] font-mono font-medium text-[#00f2ff]/40 mb-2 px-2 uppercase tracking-[0.2em] sticky top-0 bg-black/40 backdrop-blur-xl py-1 z-10 border-b border-[#00f2ff]/10">Recent Logs</div>
                                             {[...sessions].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)).map(session => (
                                                 <div
@@ -864,7 +864,7 @@ const Chatbot = () => { // NOSONAR - Fix requires business logic changes and may
                                                         </p>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex-1 overflow-y-auto min-h-0 p-4 space-y-4">
+                                                    <div className="flex-1 overflow-y-auto scroll-smooth min-h-0 p-4 space-y-4" style={{ WebkitOverflowScrolling: 'touch' }}>
                                                         {messages.map((msg) => (
                                                             <div
                                                                 key={msg.id}
@@ -1010,7 +1010,7 @@ const Chatbot = () => { // NOSONAR - Fix requires business logic changes and may
                                             </>
                                         )) : (
                                         /* Settings View */
-                                        <div className="flex-1 p-6 flex flex-col gap-6 overflow-y-auto relative z-10 font-mono">
+                                        <div className="flex-1 p-6 flex flex-col gap-6 overflow-y-auto scroll-smooth relative z-10 font-mono" style={{ WebkitOverflowScrolling: 'touch' }}>
                                             <h2 className="text-xl font-bold text-[#00f2ff] border-b border-[#00f2ff]/20 pb-4 uppercase tracking-[0.2em]">User Profile / Configuration</h2>
 
                                             <div className="space-y-4">
